@@ -3,41 +3,40 @@ package com.mrousavy.mmkv;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.facebook.react.BaseReactPackage;
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.module.model.ReactModuleInfo;
 import com.facebook.react.module.model.ReactModuleInfoProvider;
-import com.facebook.react.TurboReactPackage;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class MmkvPackage extends TurboReactPackage {
+public class MmkvPackage extends BaseReactPackage {
   @Nullable
   @Override
-  public NativeModule getModule(String name, @NonNull ReactApplicationContext reactContext) {
+  public NativeModule getModule(@NonNull String name, @NonNull ReactApplicationContext reactContext) {
     if (name.equals(MmkvPlatformContextModule.NAME)) {
       return new MmkvPlatformContextModule(reactContext);
-    } else {
-      return null;
     }
+    return null;
   }
 
+  @NonNull
   @Override
   public ReactModuleInfoProvider getReactModuleInfoProvider() {
     return () -> {
-      final Map<String, ReactModuleInfo> moduleInfos = new HashMap<>();
+      Map<String, ReactModuleInfo> moduleInfos = new HashMap<>();
       moduleInfos.put(
+          MmkvPlatformContextModule.NAME,
+          new ReactModuleInfo(
               MmkvPlatformContextModule.NAME,
-              new ReactModuleInfo(
-                      MmkvPlatformContextModule.NAME,
-                      MmkvPlatformContextModule.NAME,
-                      false, // canOverrideExistingModule
-                      false, // needsEagerInit
-                      true, // hasConstants
-                      false, // isCxxModule
-                      true // isTurboModule
-              ));
+              MmkvPlatformContextModule.class.getName(),
+              false, // canOverrideExistingModule
+              false, // needsEagerInit
+              false, // isCxxModule
+              true // isTurboModule
+          ));
       return moduleInfos;
     };
   }
