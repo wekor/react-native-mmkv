@@ -1,4 +1,15 @@
 {
-  "name": "MmkvExample",
-  "displayName": "MmkvExample"
+  "expo": {
+    "name": "MMKV Example",
+    "slug": "react-native-mmkv-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "bundleIdentifier": "com.wekor.mmkv.example"
+    },
+    "android": {
+      "package": "com.wekor.mmkv.example"
+    }
+  }
 }

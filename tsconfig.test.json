@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig",
+  "compilerOptions": { "types": ["bun"], "lib": ["ESNext", "DOM"] },
+  "include": ["src"],
+  "exclude": []
+}

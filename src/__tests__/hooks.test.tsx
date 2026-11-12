@@ -1,89 +1,55 @@
-import React from 'react';
-import { Button, Text } from 'react-native';
-import {
-  act,
-  fireEvent,
-  render,
-  renderHook,
-  screen,
-} from '@testing-library/react-native';
-import { MMKV, useMMKVNumber, useMMKVString } from '..';
+import { beforeEach, expect, test } from 'bun:test';
+import { act, renderHook } from '@testing-library/react';
+import { MMKV, useMMKVNumber, useMMKVObject, useMMKVString } from '..';
 
 const mmkv = new MMKV();
 
 beforeEach(() => {
   mmkv.clearAll();
-  mmkv.trim();
 });
 
 test('hooks update when the value is changed directly through the instance', () => {
   const { result } = renderHook(() => useMMKVString('string-key', mmkv));
-
   expect(result.current[0]).toBeUndefined();
 
-  // First, make a "normal" change
-  act(() => {
-    result.current[1]('value 1');
-  });
+  act(() => result.current[1]('value 1'));
+  expect(result.current[0]).toBe('value 1');
 
-  expect(result.current[0]).toStrictEqual('value 1');
+  act(() => mmkv.set('string-key', 'value 2'));
+  expect(result.current[0]).toBe('value 2');
 
-  // Now, make the change directly through the instance.
-  act(() => {
-    mmkv.set('string-key', 'value 2');
-  });
-  expect(result.current[0]).toStrictEqual('value 2');
+  act(() => result.current[1](undefined));
+  expect(mmkv.contains('string-key')).toBe(false);
 });
 
-test('functional updates to hooks', () => {
-  const Component: React.FC = () => {
-    const [state, setState] = React.useState(0);
-    const [value, setValue] = useMMKVNumber('number-key', mmkv);
+// https://github.com/mrousavy/react-native-mmkv/issues/599
+test('functional updates apply one after another within one render', () => {
+  const { result } = renderHook(() => useMMKVNumber('number-key', mmkv));
 
-    return (
-      <>
-        <Button
-          testID="button"
-          title="Double Increment Me"
-          onPress={() => {
-            // Increment the state value twice, using the function form of useState.
-            setState((current) => current + 1);
-            setState((current) => current + 1);
+  act(() => {
+    result.current[1]((current) => (current ?? 0) + 1);
+    result.current[1]((current) => (current ?? 0) + 1);
+  });
+  expect(result.current[0]).toBe(2);
 
-            // Increment the MMKV value twice, using the same function form.
-            setValue((current) => (current ?? 0) + 1);
-            setValue((current) => (current ?? 0) + 1);
-          }}
-        />
-        <Text testID="state-value">State: {state.toString()}</Text>
-        <Text testID="mmkv-value">MMKV: {(value ?? 0).toString()}</Text>
-      </>
-    );
-  };
+  act(() => {
+    result.current[1]((current) => (current ?? 0) + 1);
+    result.current[1]((current) => (current ?? 0) + 1);
+  });
+  expect(result.current[0]).toBe(4);
+});
 
-  render(<Component />);
+test('two hooks on the same key stay in sync', () => {
+  const { result } = renderHook(() => ({
+    first: useMMKVObject<{ count: number }>('object-key', mmkv),
+    second: useMMKVObject<{ count: number }>('object-key', mmkv),
+  }));
 
-  const button = screen.getByTestId('button');
+  act(() => result.current.first[1]({ count: 1 }));
+  expect(result.current.second[0]).toEqual({ count: 1 });
 
-  // Why these assertions:
-  // https://github.com/mrousavy/react-native-mmkv/issues/599
-  fireEvent.press(button);
-  expect(screen.getByTestId('state-value').children).toStrictEqual([
-    'State: ',
-    '2',
-  ]);
-  expect(screen.getByTestId('mmkv-value').children).toStrictEqual([
-    'MMKV: ',
-    '2',
-  ]);
-
-  fireEvent.press(button);
-  expect(screen.getByTestId('state-value').children).toStrictEqual([
-    'State: ',
-    '4',
-  ]);
-  expect(screen.getByTestId('mmkv-value').children).toStrictEqual([
-    'MMKV: ',
-    '4',
-  ]);
+  act(() =>
+    result.current.second[1]((prev) => ({ count: (prev?.count ?? 0) + 1 }))
+  );
+  expect(result.current.first[0]).toEqual({ count: 2 });
 });

@@ -1,9 +1,13 @@
+type Process = { env: Record<string, string | undefined> };
+
 export function isTest(): boolean {
-  if (global.process == null) {
-    // In a WebBrowser/Electron the `process` variable does not exist
-    return false;
-  }
+  // In a web browser or Electron there is no `process`.
+  const env = (globalThis as { process?: Process }).process?.env;
+  if (env == null) return false;
   return (
-    process.env.JEST_WORKER_ID != null || process.env.VITEST_WORKER_ID != null
+    env.JEST_WORKER_ID != null ||
+    env.VITEST_WORKER_ID != null ||
+    // `bun test` sets NODE_ENV to "test"; inside an app it is "development" or "production".
+    ('Bun' in globalThis && env.NODE_ENV === 'test')
   );
 }

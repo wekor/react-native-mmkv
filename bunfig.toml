@@ -1,0 +1,8 @@
+[install]
+# Hoist dependencies into a flat node_modules, the layout React Native tooling
+# (Metro, CocoaPods autolinking, codegen) expects.
+linker = "hoisted"
+
+[test]
+# A DOM for @testing-library/react and a stub of the parts of react-native the library touches.
+preload = ["./src/__tests__/setup.ts"]
