@@ -111,7 +111,7 @@ export class MMKV implements MMKVInterface {
   }
   recrypt(key: string | undefined): void {
     const func = this.getFunctionFromCache('recrypt');
-    return func(key);
+    func(key);
   }
   trim(): void {
     const func = this.getFunctionFromCache('trim');

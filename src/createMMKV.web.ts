@@ -54,7 +54,7 @@ export const createMMKV = (config: Configuration): NativeMMKV => {
     }
 
     const domStorage =
-      global?.localStorage ?? window?.localStorage ?? localStorage;
+      globalThis.localStorage ?? window?.localStorage ?? localStorage;
     if (domStorage == null) {
       throw new Error(`Could not find 'localStorage' instance!`);
     }

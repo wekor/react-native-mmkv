@@ -1,7 +1,7 @@
 /* global TextEncoder */
 export function createTextEncoder(): TextEncoder {
-  if (global.TextEncoder != null) {
-    return new global.TextEncoder();
+  if (globalThis.TextEncoder != null) {
+    return new globalThis.TextEncoder();
   } else {
     return {
       encode: () => {

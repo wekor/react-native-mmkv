@@ -1,9 +1,9 @@
 import { AppState } from 'react-native';
 import type { NativeEventSubscription } from 'react-native';
-import { MMKVInterface } from './Types';
+import type { MMKVInterface } from './Types';
 
 export function addMemoryWarningListener(mmkv: MMKVInterface): void {
-  if (global.WeakRef != null && global.FinalizationRegistry != null) {
+  if (globalThis.WeakRef != null && globalThis.FinalizationRegistry != null) {
     // 1. Weakify MMKV so we can safely use it inside the memoryWarning event listener
     const weakMmkv = new WeakRef(mmkv);
     const listener = AppState.addEventListener('memoryWarning', () => {
