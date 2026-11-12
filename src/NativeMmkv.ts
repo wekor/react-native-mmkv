@@ -1,6 +1,8 @@
-import type { TurboModule } from 'react-native';
-import { TurboModuleRegistry } from 'react-native';
-import type { UnsafeObject } from 'react-native/Libraries/Types/CodegenTypes';
+import {
+  type CodegenTypes,
+  type TurboModule,
+  TurboModuleRegistry,
+} from 'react-native';
 import { ModuleNotFoundError } from './ModuleNotFoundError';
 import { getMMKVPlatformContextTurboModule } from './NativeMmkvPlatformContext';
 
@@ -89,9 +91,9 @@ export interface Spec extends TurboModule {
   initialize(basePath: string): boolean;
   /**
    * Create a new instance of MMKV.
-   * The returned {@linkcode UnsafeObject} is a `jsi::HostObject`.
+   * The returned object is a `jsi::HostObject`.
    */
-  createMMKV(configuration: Configuration): UnsafeObject;
+  createMMKV(configuration: Configuration): CodegenTypes.UnsafeObject;
 }
 
 let mmkvModule: Spec | null;

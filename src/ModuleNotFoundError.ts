@@ -1,9 +1,9 @@
-import { NativeModules, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
-declare global {
-  // A react-native internal from TurboModuleRegistry.js
-  var __turboModuleProxy: unknown | undefined;
-}
+// Set up by expo-modules-core in Expo apps.
+type ExpoGlobal = {
+  modules?: { ExponentConstants?: { appOwnership?: string | null } };
+};
 
 const BULLET_POINT = '\n* ';
 
@@ -15,46 +15,19 @@ function messageWithSuggestions(
 }
 
 function getFrameworkType(): 'react-native' | 'expo' | 'expo-go' {
-  // check if Expo
-  const ExpoConstants =
-    NativeModules.NativeUnimoduleProxy?.modulesConstants?.ExponentConstants;
-  if (ExpoConstants != null) {
-    if (ExpoConstants.appOwnership === 'expo') {
-      // We're running Expo Go
-      return 'expo-go';
-    } else {
-      // We're running Expo bare / standalone
-      return 'expo';
-    }
-  }
-  return 'react-native';
+  const constants = (globalThis as { expo?: ExpoGlobal }).expo?.modules
+    ?.ExponentConstants;
+  if (constants == null) return 'react-native';
+  return constants.appOwnership === 'expo' ? 'expo-go' : 'expo';
 }
 
 export class ModuleNotFoundError extends Error {
   constructor(cause?: unknown) {
-    // TurboModule not found, something went wrong!
-    if (global.__turboModuleProxy == null) {
-      // TurboModules are not available/new arch is not enabled.
-      // react-native-mmkv 3.x.x requires new arch (react-native >0.74)
-      // react-native-mmkv 2.x.x works on old arch (react-native <0.74)
-      const message =
-        'Failed to create a new MMKV instance: react-native-mmkv 3.x.x requires TurboModules, but the new architecture is not enabled!';
-      const suggestions: string[] = [];
-      suggestions.push(
-        'Downgrade to react-native-mmkv 2.x.x if you want to stay on the old architecture.'
-      );
-      suggestions.push(
-        'Enable the new architecture in your app to use react-native-mmkv 3.x.x. (See https://github.com/reactwg/react-native-new-architecture/blob/main/docs/enable-apps.md)'
-      );
-      const error = messageWithSuggestions(message, suggestions);
-      super(error, { cause: cause });
-      return;
-    }
-
     const framework = getFrameworkType();
     if (framework === 'expo-go') {
       super(
-        'react-native-mmkv is not supported in Expo Go! Use EAS (`expo prebuild`) or eject to a bare workflow instead.'
+        'react-native-mmkv is not supported in Expo Go! Use a development build (`expo prebuild` or EAS Build) instead.',
+        { cause }
       );
       return;
     }
@@ -63,13 +36,10 @@ export class ModuleNotFoundError extends Error {
       'Failed to create a new MMKV instance: The native MMKV Module could not be found.';
     const suggestions: string[] = [];
     suggestions.push(
-      'Make sure react-native-mmkv is correctly autolinked (run `npx react-native config` to verify)'
+      'Make sure react-native-mmkv is correctly autolinked (run `npx react-native config` or `npx expo-modules-autolinking react-native-config` to verify)'
     );
     suggestions.push(
-      'Make sure you enabled the new architecture (TurboModules) and CodeGen properly generated the react-native-mmkv specs. See https://github.com/reactwg/react-native-new-architecture/blob/main/docs/enable-apps.md'
-    );
-    suggestions.push(
-      'Make sure you are using react-native 0.74.0 or higher, because react-native-mmkv is a C++ TurboModule.'
+      'Make sure CodeGen properly generated the RNMmkvSpec specs.'
     );
     suggestions.push('Make sure you rebuilt the app.');
     if (framework === 'expo') {
@@ -89,7 +59,6 @@ export class ModuleNotFoundError extends Error {
         throw new Error(`MMKV is not supported on ${Platform.OS}!`);
     }
 
-    const error = messageWithSuggestions(message, suggestions);
-    super(error, { cause: cause });
+    super(messageWithSuggestions(message, suggestions), { cause });
   }
 }
