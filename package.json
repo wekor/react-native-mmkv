@@ -108,6 +108,11 @@
     "jsSrcsDir": "src",
     "android": {
       "javaPackageName": "com.mrousavy.mmkv"
+    },
+    "ios": {
+      "modulesProvider": {
+        "MmkvPlatformContext": "MmkvPlatformContext"
+      }
     }
   }
 }

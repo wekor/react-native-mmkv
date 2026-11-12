@@ -7,9 +7,9 @@
 
 #pragma once
 
-#if __has_include(<React-Codegen/RNMmkvSpecJSI.h>)
+#if __has_include(<ReactCodegen/RNMmkvSpecJSI.h>)
 // CocoaPods include (iOS)
-#include <React-Codegen/RNMmkvSpecJSI.h>
+#include <ReactCodegen/RNMmkvSpecJSI.h>
 #elif __has_include(<RNMmkvSpecJSI.h>)
 // CMake include on Android
 #include <RNMmkvSpecJSI.h>
