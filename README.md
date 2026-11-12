@@ -1,8 +1,8 @@
 <a href="https://margelo.io">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="./package/img/banner-dark.png" />
-    <source media="(prefers-color-scheme: light)" srcset="./package/img/banner-light.png" />
-    <img alt="react-native-mmkv" src="./package/img/banner-light.png" />
+    <source media="(prefers-color-scheme: dark)" srcset="./img/banner-dark.png" />
+    <source media="(prefers-color-scheme: light)" srcset="./img/banner-light.png" />
+    <img alt="react-native-mmkv" src="./img/banner-light.png" />
   </picture>
 </a>
 
@@ -43,13 +43,16 @@
 * **iOS**, **Android** and **Web** support
 * Easy to use **React Hooks** API
 
-## react-native-mmkv V3
+## About this fork
 
 > [!IMPORTANT]
-> react-native-mmkv V3 is now a pure C++ TurboModule, and **requires the new architecture to be enabled**. (react-native 0.75+)
-> - If you want to use react-native-mmkv 3.x.x, you need to enable the new architecture in your app (see ["Enable the New Architecture for Apps"](https://github.com/reactwg/react-native-new-architecture/blob/main/docs/enable-apps.md))
-> - For React-Native 0.74.x, use react-native-mmkv 3.0.1. For React-Native 0.75.x and higher, use react-native-mmkv 3.0.2 or higher.
-> - If you cannot use the new architecture yet, downgrade to react-native-mmkv 2.x.x for now.
+> This is a maintained fork of [react-native-mmkv](https://github.com/mrousavy/react-native-mmkv) **3.x**, published as `@wekor/react-native-mmkv`. Upstream 3.x is no longer updated (4.x moved to Nitro Modules with a different API). The JS API here is the same as react-native-mmkv 3.3.3; only the native build was brought up to date:
+>
+> - Android: `BaseReactPackage` instead of the deprecated `TurboReactPackage`, the 6-argument `ReactModuleInfo` constructor, and a `build.gradle` without the old buildscript classpath, `lintOptions`, `buildDir` or old-architecture switches (AGP 9 / Gradle 9).
+> - iOS: the module is registered through `codegenConfig.ios.modulesProvider`, which keeps working once React Native removes the legacy module registry; C++20, the `ReactCodegen` header path.
+> - JS: no deep `react-native/Libraries/...` imports, React 19 types, `bun test` detection for the in-memory mock.
+>
+> Requires React Native 0.80+ with the New Architecture. Tested with React Native 0.88 and Expo SDK 58.
 
 ## Benchmark
 
@@ -57,7 +60,7 @@
 
 <div align="center">
   <a href="https://github.com/mrousavy/StorageBenchmark">
-    <img src="./package/img/benchmark_1000_get.png" />
+    <img src="./img/benchmark_1000_get.png" />
   </a>
   <p>
     <b>MMKV vs other storage libraries</b>: Reading a value from Storage 1000 times. <br/>
@@ -67,19 +70,13 @@
 
 ## Installation
 
-### React Native
+Install it under the name `react-native-mmkv`, so existing imports keep working:
 
 ```sh
-yarn add react-native-mmkv
-cd ios && pod install
+bun add react-native-mmkv@npm:@wekor/react-native-mmkv
 ```
 
-### Expo
-
-```sh
-npx expo install react-native-mmkv
-npx expo prebuild
-```
+Then rebuild the native app (`npx expo prebuild` for Expo, `pod install` for bare React Native). Don't install upstream `react-native-mmkv` next to it: both register the same native modules.
 
 ## Usage
 
@@ -217,9 +214,9 @@ if (size >= 4096) {
 }
 ```
 
-## Testing with Jest or Vitest
+## Testing with Jest, Vitest or Bun
 
-A mocked MMKV instance is automatically used when testing with Jest or Vitest, so you will be able to use `new MMKV()` as per normal in your tests. Refer to [package/example/test/MMKV.test.ts](package/example/test/MMKV.test.ts) for an example using Jest.
+A mocked, in-memory MMKV instance is automatically used under Jest, Vitest and `bun test`, so `new MMKV()` works as usual in your tests. See [src/__tests__/MMKV.test.ts](src/__tests__/MMKV.test.ts).
 
 ## Documentation
 
@@ -241,7 +238,7 @@ If a user chooses to disable LocalStorage in their browser, the library will aut
 
 ## Limitations
 
-- react-native-mmkv V3 requires react-native 0.74 or higher.
+- This fork requires react-native 0.80 or higher (Expo SDK 54 or higher): its TurboModule spec uses the `CodegenTypes` export that React Native 0.80 added.
 - react-native-mmkv V3 requires [the new architecture](https://reactnative.dev/docs/the-new-architecture/landing-page)/TurboModules to be enabled.
 - Since react-native-mmkv uses JSI for synchronous native method invocations, remote debugging (e.g. with Chrome) is no longer possible. Instead, you should use [Flipper](https://fbflipper.com) or [React DevTools](https://react.dev/learn/react-developer-tools).
 

@@ -13,6 +13,7 @@
     "cpp/**/*.h",
     "cpp/**/*.cpp",
     "MMKV/Core",
+    "MMKV/LICENSE.TXT",
     "android/src",
     "android/build.gradle",
     "android/CMakeLists.txt",
